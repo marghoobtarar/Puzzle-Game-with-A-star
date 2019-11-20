@@ -1,0 +1,82 @@
+
+from queue import PriorityQueue
+# priority Queue will help you to automatically sort you data 
+
+class Graph:
+    def __init__(self):
+        self.edges = {}   #to populate the edges from one node to all possible nodes
+        self.weights = {} #it will populate the weights by calculating
+        self.checkEdge={}
+        self.graph = {   #data structure of the game where 0 show an empty space to move the puzzle left or right
+            '/': [(0, ('/', (2, 8, 3, 4, 5, 6, 7, 1, 0)))],
+            (2, 8, 3, 4, 5, 6, 7, 1, 0): [(11, ((2, 8, 3, 4, 5, 6, 7, 1, 0), (2, 8, 3, 4, 5, 6, 7, 0, 1))),
+                                          (14, ((2, 8, 3, 4, 5, 6, 7, 1, 0), (2, 0, 3, 4, 5, 6, 7, 1, 8))),
+                                            (14, ((2, 8, 3, 4, 5, 6, 7, 1, 0), (2, 8, 3, 0, 5, 6, 7, 1, 4))),
+                                          (6, ((2, 8, 3, 4, 5, 6, 7, 1, 0), (2, 8, 3, 4, 5, 7, 0, 1, 6))),
+                                            (7, ((2, 8, 3, 4, 5, 6, 7, 1, 0), (2, 8, 3, 1, 0, 5, 7, 1, 6))),
+                                            ],
+
+
+            (2, 8, 3, 4, 5, 6, 7, 0, 1): [(6, ((2, 8, 3, 4, 5, 6, 7, 0, 1), (0, 8, 3, 4, 5, 6, 7, 2, 1))),
+                                          (7, ((2, 8, 3, 4, 5, 6, 7, 0, 1), (2, 8, 3, 4, 5, 6, 0, 7, 1)))],
+            (2, 0, 3, 4, 5, 6, 7, 1, 8): [(5, ((2, 0, 3, 4, 5, 6, 7, 1, 8), (0, 2, 3, 4, 5, 6, 7, 1, 8))),
+                                          (7, ((2, 0, 3, 4, 5, 6, 7, 1, 8), (2, 3, 0, 4, 5, 6, 7, 1, 8)))],
+
+            (0, 2, 3, 4, 5, 6, 7, 1, 8): [(5, ((0, 2, 3, 4, 5, 6, 7, 1, 8), (1, 2, 3, 4, 5, 6, 7, 0, 8)))],
+
+            (1, 2, 3, 4, 5, 6, 7, 0, 8): [(5, ((1, 2, 3, 4, 5, 6, 7, 0, 8), (1, 2, 3, 4, 5, 6, 7, 8, 0))),
+                                          (7, ((1, 2, 3, 4, 5, 6, 7, 0, 8), (1, 2, 3, 4, 5, 6, 0, 7, 8)))],
+
+
+        }
+
+        self.populateEdges();
+        self.populateWeights();
+       
+
+    def neighbors(self, node): #to get the neighbour of the edge
+        return self.edges[node]
+
+    def get_cost(self, from_node, to_node): #to get the cost from the root node to the current node
+        return self.weights[(from_node, to_node)]
+
+    def populateEdges(self):
+        for key in self.graph:
+            neighbours = []
+            for each_tuple in self.graph[key]:
+                neighbours.append(each_tuple[1][1])
+            self.edges[key] = neighbours;
+
+
+    def populateWeights(self):
+        for key in self.graph:
+            for each_tuple in self.graph[key]:
+                self.weights[each_tuple[1]] = each_tuple[0];
+###################################the main portion of the algorthm start here#################
+
+def A_Star(start, goal):
+    graph_data = Graph();
+    visited = set()
+    queue = PriorityQueue()
+    queue.put((0, start))
+
+    while queue:
+ 
+        cost, node = queue.get()
+        if node not in visited:
+            visited.add(node)
+           
+            if node[1][1] == goal:
+                return visited , cost
+
+           
+            if node[1][1] in graph_data.graph:
+                for i in graph_data.graph[node[1][1]]:
+                    if i not in visited:
+                        total_cost = cost + graph_data.get_cost(node[1][1], i[1][1])
+                        queue.put((total_cost, i))
+
+
+
+
+print("Final Output: ", A_Star((0, ("/", (2, 8, 3, 4, 5, 6, 7, 1, 0))), (1, 2, 3, 4, 5, 6, 7, 8, 0)))
